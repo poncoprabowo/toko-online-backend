@@ -3,12 +3,15 @@
 const { createClient } = require('@supabase/supabase-js');
 const config = require('./index');
 
-const supabase = createClient(
-  config.supabaseUrl,
-  config.supabaseAnonKey
-);
+// Validasi dulu apakah env variable tersedia
+if (!config.supabaseUrl || !config.supabaseAnonKey) {
+  throw new Error('SUPABASE_URL atau SUPABASE_ANON_KEY tidak ditemukan di .env');
+}
 
-// Fungsi untuk mendapatkan user yang login via Supabase Auth
+// Inisialisasi Supabase client
+const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
+
+// Fungsi helper untuk mendapatkan user dari request
 async function getUserFromRequest(req) {
   const authHeader = req.headers.authorization;
 
@@ -18,10 +21,14 @@ async function getUserFromRequest(req) {
 
   const token = authHeader.split(' ')[1];
 
-  const { user, error } = await supabase.auth.getUser(token);
-  if (error) throw error;
+  try {
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error) throw error;
 
-  return user;
+    return data.user;
+  } catch (err) {
+    throw err;
+  }
 }
 
 module.exports = { supabase, getUserFromRequest };

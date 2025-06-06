@@ -1,8 +1,8 @@
 // controllers/reviewController.js
-const { supabase } = require('../config/supabaseClient');
-const { authenticate, isAdmin } = require('../middleware/authMiddleware');
 
-exports.createReview = async (req, res) => {
+const { supabase } = require('../config/supabaseClient');
+
+async function createReview(req, res) {
   const { product_id, rating, comment } = req.body;
   const userId = req.user.id;
 
@@ -17,15 +17,15 @@ exports.createReview = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-};
+}
 
-exports.getProductReviews = async (req, res) => {
+async function getProductReviews(req, res) {
   const productId = req.params.id;
 
   try {
     const { data, error } = await supabase
       .from('reviews')
-      .select('*, users(full_name)')
+      .select('*')
       .eq('product_id', productId);
 
     if (error) throw error;
@@ -34,9 +34,9 @@ exports.getProductReviews = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-};
+}
 
-exports.deleteReviewByAdmin = async (req, res) => {
+async function deleteReviewByAdmin(req, res) {
   const reviewId = req.params.id;
 
   try {
@@ -47,8 +47,17 @@ exports.deleteReviewByAdmin = async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ success: true, message: 'Ulasan berhasil dihapus' });
+    res.json({
+      success: true,
+      message: 'Ulasan berhasil dihapus'
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+}
+
+module.exports = {
+  createReview,
+  getProductReviews,
+  deleteReviewByAdmin
 };

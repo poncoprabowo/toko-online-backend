@@ -1,13 +1,15 @@
+// controllers/shippingController.js
+
 const {
-  getProvinces,
-  getCities,
-  calculateShippingCost
+  getProvinces: getProvincesFromService,
+  getCities: getCitiesFromService,
+  calculateShippingCost: calculateShippingCostFromService
 } = require('../services/shippingService');
 
 // Ambil semua provinsi
 exports.getProvinces = async (req, res) => {
   try {
-    const provinces = await getProvinces();
+    const provinces = await getProvincesFromService();
     res.json({ success: true, data: provinces });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -19,7 +21,7 @@ exports.getCitiesByProvince = async (req, res) => {
   const { province_id } = req.params;
 
   try {
-    const cities = await getCities(province_id);
+    const cities = await getCitiesFromService(province_id);
     res.json({ success: true, data: cities });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -35,7 +37,7 @@ exports.calculateShipping = async (req, res) => {
   }
 
   try {
-    const costs = await calculateShippingCost(origin, destination, weight, courier);
+    const costs = await calculateShippingCostFromService(origin, destination, weight, courier);
     res.json({ success: true, data: costs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
